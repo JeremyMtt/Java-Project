@@ -1,0 +1,37 @@
+package edu.nyu.cs9053.homework10;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+/**
+ * User: blangel
+ */
+public class ModernFortification extends ConcurrencyFactorAbstract implements Fortification<ExecutorService> {
+    private final Thread[] thread;
+    private final ExecutorService executor;
+    
+    public ModernFortification(int concurrencyFactor) {
+	super(concurrencyFactor);
+        thread = new Thread[concurrencyFactor];
+	executor = Executors.newFixedThreadPool(concurrencyFactor);
+    }
+
+    @Override
+	public void handleAttack(AttackHandler handler) {
+	for (int i = 0; i < getConcurrencyFactor(); i++) {
+	    executor.submit(new Runnable(){
+		    @Override
+			public void run() {
+			handler.soldiersReady();
+		    }
+		});
+	    thread[i].start();
+            return;
+	}
+    }
+
+    @Override
+	public void surrender() {
+	executor.shutdown();
+    }
+}

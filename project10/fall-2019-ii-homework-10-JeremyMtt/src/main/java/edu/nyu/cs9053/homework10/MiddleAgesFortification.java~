@@ -1,0 +1,60 @@
+package edu.nyu.cs9053.homework10;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+/**
+ * User: blangel
+ */
+public class MiddleAgesFortification extends ConcurrencyFactorAbstract implements Fortification<Thread> {
+    private final Thread[] thread;
+    private final BlockingQueue<Runnable> queue;
+    
+    public MiddleAgesFortification(int concurrencyFactor) {
+	super(concurrencyFactor);
+        this.thread = new Thread[concurrencyFactor];
+        this.queue = new LinkedBlockingQueue<>();
+        this.getThread();
+    }
+    
+    @Override
+	public void handleAttack(AttackHandler handler) {
+	try{
+	    queue.put(new Runnable() {
+		    @Override
+			public void run() {
+			handler.soldiersReady();
+		    }
+		});
+	    for(Thread threads: thread){
+                threads.start();
+            }
+	}catch (InterruptedException ie) {
+	    ie.printStackTrace();
+	}
+    }
+
+    @Override
+    public void surrender() {
+        Thread.currentThread().interrupt();
+    }
+    
+    public void getThread() {
+	for (int i = 0; i < getConcurrencyFactor(); i++) {
+	    thread[i] = new Thread(new Runnable(){
+		    @Override
+		    public void run() {
+			while (!Thread.currentThread().isInterrupted()){
+			    try {
+				Runnable queuefactor = queue.take();
+				queuefactor.run();
+			    } catch (InterruptedException ie) {
+				surrender();
+			    }
+			}
+		    }
+		});
+        }
+    }
+    
+}
