@@ -1,0 +1,5 @@
+javac -sourcepath src/main/java src/main/java/edu/nyu/cs9053/homework1/Brittanie.java
+java edu.nyu.cs9053.homework1.Juliette
+javac Brittanie.java
+java -cp output edu.nyu.cs9053.Fiona
+javac -d target Herschel.java
